@@ -291,7 +291,6 @@ class GestionDeliberation(QMainWindow):
             QMessageBox.information(self, "Succès", "Délibération effectuée avec succès.")
 
     def valider_second_tour(self):
-        """Valide les candidats sélectionnés pour le second tour."""
         selection = self.table.selectedItems()
         if not selection:
             QMessageBox.warning(self, "Attention", "Veuillez sélectionner des candidats.")
@@ -300,25 +299,24 @@ class GestionDeliberation(QMainWindow):
         rows = set(item.row() for item in selection)
         for row in rows:
             if self.table.item(row, 7).text() == "2nd Tour":
-                # Récupérer le numéro de table (qui sert d'identifiant)
                 numero_table = self.table.item(row, 0).text()
                 
-                # Mettre à jour la base de données
+                # Mise à jour de la base de données
                 self.cur.execute("""
                     UPDATE Deliberation 
-                    SET statut = '2nd Tour' 
+                    SET statut = '2nd Tour'
                     WHERE id_candidat IN (
                         SELECT id_candidat 
                         FROM Candidats 
                         WHERE numero_table = ?
                     )
                 """, (numero_table,))
-                self.conn.commit()
                 
-                # Mettre à jour l'interface
+                # Mise à jour immédiate de l'interface
                 self.table.item(row, 7).setText("2nd Tour")
-                
-        self.charger_candidats()  # Recharger le tableau pour refléter les changements
+        
+        self.conn.commit()  # Important : commit les changements
+        self.charger_candidats()  # Recharger pour refléter les changements
         QMessageBox.information(self, "Succès", "Candidats validés pour le second tour.")
 
 
@@ -334,19 +332,31 @@ class GestionDeliberation(QMainWindow):
         if choix == QMessageBox.Yes:
             try:
                 for row in range(self.table.rowCount()):
-                    id_candidat = self.table.item(row, 0).text()
+                    numero_table = self.table.item(row, 0).text()
                     points_tour1 = float(self.table.item(row, 2).text())
-                    points_tour2 = float(self.table.item(row, 3).text()) if self.table.item(row, 3).text() != "N/A" else None
+                    points_tour2 = self.table.item(row, 3).text()
+                    points_tour2 = float(points_tour2) if points_tour2 != "N/A" else None
                     statut = self.table.item(row, 7).text()
 
+                    # Récupérer l'id_candidat à partir du numéro de table
                     self.cur.execute("""
-                        INSERT OR REPLACE INTO Deliberation (id_candidat, points_tour1, points_tour2, statut)
+                        SELECT id_candidat 
+                        FROM Candidats 
+                        WHERE numero_table = ?
+                    """, (numero_table,))
+                    id_candidat = self.cur.fetchone()[0]
+
+                    # Insérer ou mettre à jour dans la table Deliberation
+                    self.cur.execute("""
+                        INSERT OR REPLACE INTO Deliberation 
+                        (id_candidat, points_tour1, points_tour2, statut)
                         VALUES (?, ?, ?, ?)
                     """, (id_candidat, points_tour1, points_tour2, statut))
+                
                 self.conn.commit()
                 QMessageBox.information(self, "Succès", "Délibération finalisée avec succès.")
             except sqlite3.Error as e:
-                QMessageBox.critical(self, "Erreur", f"Erreur lors de la finalisation de la délibération : {e}")
+                QMessageBox.critical(self, "Erreur", f"Erreur lors de la finalisation : {e}")
 
     def afficher_details(self, row):
         """Affiche les détails d'un candidat."""
