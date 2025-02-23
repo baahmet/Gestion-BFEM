@@ -1,4 +1,7 @@
+## 👥 MEMBRES DU GROUPE :
 
+- **Mohamet Lamine Ba**
+- **Mouhamadou Al Bachir Ba**
 
 # 📘 Gestion des Délibérations du BFEM
 
