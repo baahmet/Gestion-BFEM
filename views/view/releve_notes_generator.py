@@ -2,7 +2,7 @@ import sys
 import sqlite3
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QTableWidget, QTableWidgetItem, QPushButton, QMessageBox, QComboBox, QLabel
+    QTableWidget, QTableWidgetItem, QPushButton, QMessageBox, QComboBox, QLabel, QFileDialog
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
@@ -154,10 +154,23 @@ class ReleveNotesGenerator(QMainWindow):
                 pdf.cell(col_widths[1], 10, str(note), 1, 0, "C")
                 pdf.ln()
 
-        # Sauvegarder le PDF
-        filename = f"Relevé_Notes_{nom_candidat}_{'1er_Tour' if tour_selected else '2nd_Tour'}.pdf"
+        # Demander à l'utilisateur où enregistrer le fichier
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            "Enregistrer le relevé de notes",
+            f"Relevé_Notes_{nom_candidat}_{'1er_Tour' if tour_selected else '2nd_Tour'}.pdf",
+            "Fichiers PDF (*.pdf)"
+        )
+
+        if filename:
+            self.save_pdf(pdf, filename)
+            QMessageBox.information(self, "Succès", f"Relevé de notes généré avec succès : {filename}")
+        else:
+            QMessageBox.warning(self, "Annulé", "Enregistrement du fichier annulé.")
+
+    def save_pdf(self, pdf, filename):
+        """Sauvegarde le PDF généré."""
         pdf.output(filename)
-        QMessageBox.information(self, "Succès", f"Relevé de notes généré avec succès : {filename}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

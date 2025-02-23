@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
+
 # Couleurs inspirées du MainMenu
 PRIMARY_COLOR = "#2C3E50"
 ACCENT_COLOR = "#1ABC9C"
@@ -176,6 +177,8 @@ class SaisieNotesDialog(QDialog):
         # Charger les notes existantes si en mode modification
         if self.modification:
             self.charger_notes_existantes()
+    
+
 
     def init_all_notes_fields(self):
         """Initialise tous les champs de saisie des notes."""

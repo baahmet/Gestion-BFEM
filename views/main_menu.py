@@ -130,6 +130,10 @@ class NavBar(QToolBar):
         """)
         self.addWidget(self.logout_button)
 
+        # Connecter le bouton de déconnexion à la méthode logout
+        if parent is not None:
+            self.logout_button.clicked.connect(parent.logout)
+
 class Footer(QFrame):
     """Pied de page personnalisé avec un design moderne"""
     def __init__(self, parent=None):
@@ -626,8 +630,9 @@ class MainMenu(QMainWindow):
 
         if reply == QMessageBox.Yes:
             self.close()  # Fermer la fenêtre principale
-            self.login_window = LoginWindow()  # Ouvrir la fenêtre de connexion
-            self.login_window.show()
+            self.login_window = LoginWindow()  # Créer une nouvelle instance de LoginWindow
+            self.login_window.clear_fields()  # Effacer les champs de connexion
+            self.login_window.show()  # Afficher la fenêtre de connexion
 
 class MenuButton(QPushButton):
     """Classe personnalisée pour les boutons du menu"""

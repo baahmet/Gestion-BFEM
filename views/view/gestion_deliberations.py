@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
-
+from views.view.saisie_notes import SaisieNotesDialog
+from views.view.saisie_notes import SaisieNotes
 # Couleurs inspirées du MainMenu
 PRIMARY_COLOR = "#2C3E50"
 ACCENT_COLOR = "#1ABC9C"
@@ -66,36 +67,28 @@ class GestionDeliberation(QMainWindow):
             "Actions"
         ]
         self.table.setHorizontalHeaderLabels(headers)
-        self.table.setStyleSheet("""
-            QTableWidget {
-                background-color: white;
-                color: black;
-                border-radius: 5px;
-            }
-            QTableWidget::item {
-                padding: 5px;
-            }
-        """)
+        
+        self.table.setStyleSheet("background-color: white; color: black; border-radius: 5px;")
         self.table.horizontalHeader().setStretchLastSection(True)
         self.layout.addWidget(self.table)
 
     def setup_controls(self):
-        """Configure les filtres et contrôles."""
-        controls_layout = QHBoxLayout()
+            """Configure les filtres et contrôles."""
+            controls_layout = QHBoxLayout()
 
-        self.statut_filter = QComboBox()
-        self.statut_filter.addItems(["Tous", "Admis", "2nd Tour", "Repêchage", "Échec"])
-        self.statut_filter.currentTextChanged.connect(self.appliquer_filtres)
+            self.statut_filter = QComboBox()
+            self.statut_filter.addItems(["Tous", "Admis", "2nd Tour", "Repêchage", "Échec"])
+            self.statut_filter.currentTextChanged.connect(self.appliquer_filtres)
 
-        self.search_box = QLineEdit()
-        self.search_box.setPlaceholderText("Rechercher un candidat...")
-        self.search_box.textChanged.connect(self.appliquer_filtres)
+            self.search_box = QLineEdit()
+            self.search_box.setPlaceholderText("Rechercher un candidat...")
+            self.search_box.textChanged.connect(self.appliquer_filtres)
 
-        for widget in [QLabel("Filtrer par statut:"), self.statut_filter,
-                       QLabel("Rechercher:"), self.search_box]:
-            controls_layout.addWidget(widget)
+            for widget in [QLabel("Filtrer par statut:"), self.statut_filter,
+                        QLabel("Rechercher:"), self.search_box]:
+                controls_layout.addWidget(widget)
 
-        self.layout.addLayout(controls_layout)
+            self.layout.addLayout(controls_layout)
 
     def setup_action_buttons(self):
         """Configure les boutons d'action."""
@@ -103,9 +96,11 @@ class GestionDeliberation(QMainWindow):
 
         self.btn_deliberer = QPushButton("Lancer la Délibération")
         self.btn_second_tour = QPushButton("Valider pour 2nd Tour")
+        self.btn_gerer_2nd_tour = QPushButton("Gérer 2nd Tour")
         self.btn_finaliser = QPushButton("Finaliser")
 
-        for btn in [self.btn_deliberer, self.btn_second_tour, self.btn_finaliser]:
+        for btn in [self.btn_deliberer, self.btn_second_tour, 
+                    self.btn_gerer_2nd_tour, self.btn_finaliser]:  # Ajout du nouveau bouton
             btn.setFont(QFont("Roboto", 12))
             btn.setStyleSheet(f"""
                 QPushButton {{
@@ -122,6 +117,7 @@ class GestionDeliberation(QMainWindow):
 
         self.btn_deliberer.clicked.connect(self.lancer_deliberation)
         self.btn_second_tour.clicked.connect(self.valider_second_tour)
+        self.btn_gerer_2nd_tour.clicked.connect(self.gerer_second_tour)  
         self.btn_finaliser.clicked.connect(self.finaliser_deliberation)
 
         self.layout.addLayout(buttons_layout)
@@ -230,9 +226,6 @@ class GestionDeliberation(QMainWindow):
             if points_tour1 is None:
                 continue
 
-            # Log pour vérifier le statut calculé
-            print(f"Candidat {nom_complet} (ID: {id_candidat}) - Statut calculé: {statut}")
-
             self.table.insertRow(row)
 
             items = [
@@ -255,7 +248,7 @@ class GestionDeliberation(QMainWindow):
             btn_action.setStyleSheet(f"background-color: {HOVER_COLOR}; color: {TEXT_COLOR};")
             btn_action.clicked.connect(lambda _, r=row: self.afficher_details(r))
             self.table.setCellWidget(row, 8, btn_action)
-
+      
     def appliquer_filtres(self):
         """Applique les filtres de recherche et de statut."""
         filtre_statut = self.statut_filter.currentText()
@@ -263,19 +256,27 @@ class GestionDeliberation(QMainWindow):
 
         for row in range(self.table.rowCount()):
             masquer = False
-
+            
+            # Vérifier le filtre de statut
             if filtre_statut != "Tous":
-                statut = self.table.item(row, 7).text()
-                if statut != filtre_statut:
+                statut_item = self.table.item(row, 7)
+                if statut_item and statut_item.text() != filtre_statut:
                     masquer = True
 
+            # Vérifier le filtre de recherche
             if texte_recherche:
-                nom = self.table.item(row, 1).text().lower()
-                numero = self.table.item(row, 0).text().lower()
+                nom_item = self.table.item(row, 1)
+                numero_item = self.table.item(row, 0)
+                
+                nom = nom_item.text().lower() if nom_item else ""
+                numero = numero_item.text().lower() if numero_item else ""
+                
                 if texte_recherche not in nom and texte_recherche not in numero:
                     masquer = True
 
+            # Appliquer le masquage
             self.table.setRowHidden(row, masquer)
+
 
     def lancer_deliberation(self):
         """Lance le processus de délibération pour tous les candidats."""
@@ -318,7 +319,43 @@ class GestionDeliberation(QMainWindow):
         self.conn.commit()  # Important : commit les changements
         self.charger_candidats()  # Recharger pour refléter les changements
         QMessageBox.information(self, "Succès", "Candidats validés pour le second tour.")
-
+    
+    def gerer_second_tour(self):
+        """Gère les candidats admis au second tour après délibération."""
+        try:
+            # Récupérer tous les candidats du second tour
+            self.cur.execute("""
+                SELECT C.numero_table, C.nom || ' ' || C.prenom, A.numero_anonymat,
+                    D.points_tour1
+                FROM Deliberation D
+                JOIN Candidats C ON D.id_candidat = C.id_candidat
+                LEFT JOIN Anonymats A ON C.id_candidat = A.id_candidat
+                WHERE D.statut = '2nd Tour'
+            """)
+            candidats_2nd_tour = self.cur.fetchall()
+            
+            if not candidats_2nd_tour:
+                QMessageBox.information(self, "Information", 
+                    "Aucun candidat n'est actuellement admis au second tour.")
+                return
+                
+            # Demander confirmation pour ouvrir la saisie des notes
+            choix = QMessageBox.question(self, "Second Tour",
+                "Voulez-vous procéder à la saisie des notes du second tour ?",
+                QMessageBox.Yes | QMessageBox.No)
+                
+            if choix == QMessageBox.Yes:
+                self.fenetre_saisie = SaisieNotes()
+                # Ouvrir directement la fenêtre en mode second tour
+                dialog = SaisieNotesDialog(self.fenetre_saisie, candidats_2nd_tour[0][2] if candidats_2nd_tour[0][2] else "", modification=False)
+                dialog.tour_combo.setCurrentText("Second Tour")
+                dialog.exec_()  # Utiliser exec_ au lieu de show()
+                self.fenetre_saisie.charger_candidats()  # Recharger les candidats après la saisie
+                self.fenetre_saisie.show()
+                
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Erreur", 
+                f"Erreur lors de la gestion du second tour : {e}")
 
     def finaliser_deliberation(self):
         """Finalise le processus de délibération."""

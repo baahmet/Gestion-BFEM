@@ -4,7 +4,11 @@
 
 **Une application Python pour automatiser la gestion des délibérations du Brevet de Fin d'Études Moyennes (BFEM).**
 
-Ce projet est conçu pour simplifier et automatiser le processus de gestion des délibérations du BFEM. Il permet de gérer les candidats, saisir les notes, générer des anonymats, suivre les délibérations, et produire des documents officiels tels que les PV et les relevés de notes. L'application inclut également une gestion des utilisateurs avec des rôles distincts (Jury et Professeur) et une fonctionnalité d'importation de données depuis un fichier Excel.
+Ce projet est conçu pour simplifier et automatiser le processus de gestion des délibérations du BFEM. 
+Il permet de gérer les candidats, saisir les notes, générer des anonymats, suivre les délibérations, 
+et produire des documents officiels tels que les PV et les relevés de notes. 
+L'application inclut également une gestion des utilisateurs avec des rôles distincts (Jury et Professeur) 
+et une fonctionnalité d'importation de données depuis un fichier Excel.
 
 ---
 
@@ -19,11 +23,11 @@ Ce projet est conçu pour simplifier et automatiser le processus de gestion des 
 - **🔹 Importation de données** : Importation des données des candidats depuis un fichier Excel.
 - **🔹 Gestion des utilisateurs** :
   - **Jury** : Accès complet à toutes les fonctionnalités. Le jury peut :
-    - Créer des comptes pour les professeurs.
+    - Peut permettre aux professeurs(membres du jury) de créer des comptes  .
     - Modifier son propre compte.
     - Configurer les paramètres du jury.
   - **Professeur** : Accès limité à la saisie des notes et à la consultation des candidats.
-- **🔹 Paramétrage du jury** : Configuration des paramètres du jury (nombre de membres, règles de délibération, etc.).
+- **🔹 Paramétrage du jury** : Configuration des paramètres du jury (info sur le sur jury).
 
 ---
 
@@ -36,7 +40,7 @@ Ce projet est conçu pour simplifier et automatiser le processus de gestion des 
 ### Étapes d'installation
 1. Clonez le dépôt :
    ```bash
-   git clone https://github.com/ton-utilisateur/Gestion-BFEM.git
+   git clone https://github.com/baahmet/Gestion-BFEM.git
    cd Gestion-BFEM
    ```
 
@@ -68,14 +72,14 @@ L'application dispose d'une interface graphique intuitive pour :
 - Suivre les délibérations.
 - Produire les PV et relevés de notes.
 - Importer des données depuis un fichier Excel.
-- Gérer les utilisateurs (Jury et Professeur).
+- Gérer les utilisateurs (Jury et Professeurs(membres)).
 
 ### Rôles et Accès
 - **Jury** : Accès complet à toutes les fonctionnalités. Le jury peut :
-  - Créer des comptes pour les professeurs.
+  - Peut permettre aux professeurs(membres) de créer des comptes.
   - Modifier son propre compte.
   - Configurer les paramètres du jury.
-- **Professeur** : Accès limité à la saisie des notes et à la consultation des candidats.
+- **Professeurs (membres du jury)** : Accès limité à la saisie des notes et à la consultation des candidats.
 
 ---
 
@@ -86,10 +90,10 @@ Gestion-BFEM/
 ├── database/               # Fichiers de base de données
 ├── views/                  # Interfaces graphiques
 ├── main.py                 # Point d'entrée de l'application
-├── requirements.txt        # Dépendances du projet
 ├── README.md               # Documentation du projet
 ├── config.json             # Fichier de configuration (stocke les identifiants par défaut)
 └── Guide_Utilisateur.pdf   # Guide d'utilisation
+└──bult.bat                 # Mettre à Jour L'exécutable Après Modification du Code 
 ```
 
 ---
@@ -122,8 +126,8 @@ Le fichier `config.json` est utilisé pour stocker les identifiants par défaut 
 
 Les contributions sont les bienvenues ! Voici comment vous pouvez contribuer :
 
-1. **Signaler un bug** : Ouvrez une [issue](https://github.com/ton-utilisateur/Gestion-BFEM/issues) en décrivant le problème.
-2. **Proposer une amélioration** : Soumettez une [pull request](https://github.com/ton-utilisateur/Gestion-BFEM/pulls) avec vos modifications.
+1. **Signaler un bug** : Ouvrez une [issue](https://github.com/baahmet/Gestion-BFEM/issues) en décrivant le problème.
+2. **Proposer une amélioration** : Soumettez une [pull request](https://github.com/baahmet/Gestion-BFEM/pulls) avec vos modifications.
 3. **Améliorer la documentation** : Aidez-nous à améliorer le `README.md` ou le guide utilisateur.
 
 ---

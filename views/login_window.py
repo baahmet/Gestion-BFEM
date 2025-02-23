@@ -48,6 +48,7 @@ class LoginWindow(QDialog):
         """)
         
         self.auth_controller = AuthController()
+        self.role = None  # Attribut pour stocker le rôle après l'authentification
         
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)  # Ajouter des marges
@@ -78,10 +79,16 @@ class LoginWindow(QDialog):
             QMessageBox.warning(self, "Erreur", "Veuillez remplir tous les champs.")
             return
         
-        role = self.auth_controller.authenticate(username, password)
-        if role:
+        # Authentifier l'utilisateur
+        self.role = self.auth_controller.authenticate(username, password)
+        
+        if self.role:
             self.accept()  # Fermer la fenêtre de connexion
-            return role
         else:
             QMessageBox.warning(self, "Erreur", "Nom d'utilisateur ou mot de passe incorrect.")
-            return None
+            self.role = None  # Réinitialiser le rôle en cas d'échec
+    
+    def clear_fields(self):
+        """Efface les champs de connexion"""
+        self.username_input.clear()
+        self.password_input.clear()
