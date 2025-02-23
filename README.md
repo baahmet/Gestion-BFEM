@@ -98,7 +98,7 @@ Gestion-BFEM/
 ├── config.json             # Fichier de configuration (stocke les identifiants par défaut)
 └── Guide_Utilisateur.pdf   # Guide d'utilisation
 └──bult.bat                 # Mettre à Jour L'exécutable Après Modification du Code 
-```
+├──Plan détaillé du projet POO2     #Plan détaillé du projet POO2 sous format word
 
 ---
 
