@@ -90,6 +90,7 @@ Gestion-BFEM/
 ├── database/               # Fichiers de base de données
 ├── views/                  # Interfaces graphiques
 ├── main.py                 # Point d'entrée de l'application
+├── Gestion_BFEM.exe        # l'application sous forme exécutable, installer avec PyInstaller 
 ├── README.md               # Documentation du projet
 ├── config.json             # Fichier de configuration (stocke les identifiants par défaut)
 └── Guide_Utilisateur.pdf   # Guide d'utilisation
